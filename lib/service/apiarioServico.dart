@@ -1,35 +1,25 @@
-import 'dart:js_interop_unsafe';
-
-import 'package:appis_app/models/anotacoes_modelo.dart';
-import 'package:appis_app/models/cadastroApiarios.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:appis_app/models/anotacoes_modelo.dart';
+import 'package:appis_app/models/cadastroApiarios.dart';
 
 class ApiarioServico {
-  String userID;
+  String userId;
 
-  ApiarioServico() : userID = FirebaseAuth.instance.currentUser!.uid;
+  ApiarioServico() : userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> AdicionarApiarios(ApiariosModelo apiariosModelo) async {
     return await _firestore
-        .collection(userID)
+        .collection(userId)
         .doc(apiariosModelo.id)
         .set(apiariosModelo.toMap());
   }
 
-  Future<void> adicionarAnotacoes(String idApiario, anotacoesModelo) async {
-    return await _firestore
-        .collection(userID)
-        .doc(idApiario)
-        .collection("anotacoes")
-        .doc(anotacoesModelo.id)
-        .set(anotacoesModelo.toMap());
-  }
-   Future<List<ApiariosModelo>> fetchApiarios() async {
+  Future<List<ApiariosModelo>> fetchApiarios() async {
     try {
-      QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore.collection(userID).get();
+      QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore.collection(userId).get();
       List<ApiariosModelo> apiariosList = snapshot.docs.map((doc) {
         return ApiariosModelo.fromMap(doc.data());
       }).toList();
@@ -41,20 +31,19 @@ class ApiarioServico {
     }
   }
 
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> conectarStreamApiarios(){
-     return _firestore.collection(userID).snapshots();
-
+  Stream<QuerySnapshot<Map<String, dynamic>>> conectarStreamApiarios() {
+    return _firestore.collection(userId).snapshots();
   }
-  Future<List<anotacoesModelo>> fetchAnotacoes(String apiarioId) async {
+
+  Future<List<AnotacoesModelo>> fetchAnotacoes(String apiarioId) async {
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
-          .collection(userID)
+          .collection(userId)
           .doc(apiarioId)
           .collection("anotacoes")
           .get();
-          List<anotacoesModelo> anotacoesList = snapshot.docs.map((doc) {
-        return anotacoesModelo.fromMap(doc.data());
+      List<AnotacoesModelo> anotacoesList = snapshot.docs.map((doc) {
+        return AnotacoesModelo.fromMap(doc.data());
       }).toList();
 
       return anotacoesList;
@@ -64,8 +53,7 @@ class ApiarioServico {
     }
   }
 
-  Future<void> removerApiario({required String idApiario}){
-    return _firestore.collection(userID).doc(idApiario).delete();
+  Future<void> removerApiario({required String idApiario}) {
+    return _firestore.collection(userId).doc(idApiario).delete();
   }
-
 }

@@ -4,7 +4,7 @@ import 'package:appis_app/models/anotacoes_modelo.dart';
 import 'package:appis_app/assets/components/NavBar.dart';
 
 class ApiarioTela extends StatelessWidget {
-  final anotacoesModelo anotacao;
+  final AnotacoesModelo anotacao;
 
   const ApiarioTela({required this.anotacao, Key? key}) : super(key: key);
 

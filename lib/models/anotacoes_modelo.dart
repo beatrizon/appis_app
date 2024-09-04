@@ -1,12 +1,12 @@
-class anotacoesModelo {
+class AnotacoesModelo {
   String id;
   String anotacoes;
   String data;
 
-  anotacoesModelo(
+  AnotacoesModelo(
       {required this.id, required this.anotacoes, required this.data});
 
-  anotacoesModelo.fromMap(Map<String, dynamic> map)
+  AnotacoesModelo.fromMap(Map<String, dynamic> map)
       : id = map["id"],
         anotacoes = map["anotacoes"],
         data = map["data"];

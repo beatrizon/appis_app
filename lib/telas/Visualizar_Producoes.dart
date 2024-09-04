@@ -1,3 +1,4 @@
+import 'package:appis_app/assets/components/anotacoes_modal.dart';
 import 'package:appis_app/service/apiarioServico.dart';
 import 'package:appis_app/telas/AdicionarApiarios.dart';
 import 'package:flutter/material.dart';
@@ -64,11 +65,9 @@ class VisualizarProducoes extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.exit_to_app),
-              title: const Text('Deslogar'),
-              onTap: () {}
-              
-            ),
+                leading: const Icon(Icons.exit_to_app),
+                title: const Text('Deslogar'),
+                onTap: () {}),
           ],
         ),
       ),
@@ -87,6 +86,7 @@ class VisualizarProducoes extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 16.0),
         child: FloatingActionButton.extended(
           backgroundColor: paletaDeCores.amareloClaro,
+          foregroundColor: Colors.black, // Define a cor do texto como preto
           onPressed: () {
             mostrarModalInicio(context);
           },
@@ -95,106 +95,116 @@ class VisualizarProducoes extends StatelessWidget {
         ),
       ),
       body: StreamBuilder(
-        stream: servico.conectarStreamApiarios(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.active) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            if (snapshot.hasData &&
-                snapshot.data != null &&
-                snapshot.data!.docs.isNotEmpty) {
-              List<ApiariosModelo> listaApiario = [];
+  stream: servico.conectarStreamApiarios(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState != ConnectionState.active) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      if (snapshot.hasData &&
+          snapshot.data != null &&
+          snapshot.data!.docs.isNotEmpty) {
+        List<ApiariosModelo> listaApiario = [];
 
-              for (var doc in snapshot.data!.docs) {
-                listaApiario.add(
-                    ApiariosModelo.fromMap(doc.data() as Map<String, dynamic>));
-              }
+        for (var doc in snapshot.data!.docs) {
+          listaApiario.add(
+              ApiariosModelo.fromMap(doc.data() as Map<String, dynamic>));
+        }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: listaApiario.length,
-                itemBuilder: (context, index) {
-                  var apiarioModelo = listaApiario[index];
-                  return Container(
-                    margin: const EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.0),
-                      color: paletaDeCores.fundoApp,
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DetalhesApiario(apiarioModelo),
-                          ),
-                        );
-                      },
-                      child: ListTile(
-                        leading: Image.asset(
-                          "lib/assets/images/apiario.png",
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                        ),
-                        title: Text(
-                          apiarioModelo.apelido,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        subtitle: Text(
-                            apiarioModelo.dateStart ?? 'Data não especificada'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min, // Substitua aqui
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.black),
-                              onPressed: () {
-                                mostrarModalInicio(context,
-                                    apiario: apiarioModelo);
-                              },
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                SnackBar snackBar = SnackBar(
-                                  backgroundColor: const Color.fromARGB(255, 235, 95, 85),
-                                  content: Text(
-                                      "Deseja remover o apiário ${apiarioModelo.apelido}?"),
-                                  action: SnackBarAction(
-                                    label: "REMOVER",
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      servico.removerApiario(
-                                          idApiario: apiarioModelo.id);
-                                    },
-                                  ),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                              },
-                              icon: const Icon(Icons.delete),
-                            ),
-                          ],
-                        ),
-                      ),
+        return ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: listaApiario.length,
+          itemBuilder: (context, index) {
+            if (index >= listaApiario.length) {
+              // Isso nunca deve acontecer, mas é uma segurança extra
+              return const Center(
+                child: Text('Erro: índice fora do intervalo'),
+              );
+            }
+
+            var apiarioModelo = listaApiario[index];
+            return Container(
+              margin: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.0),
+                color: paletaDeCores.fundoApp,
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          DetalhesApiario(apiarioModelo),
                     ),
                   );
                 },
-              );
-            } else {
-              return const Center(
-                child: Text(
-                  "Nenhum apiário registrado 😢",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
+                child: ListTile(
+                  leading: Image.asset(
+                    "lib/assets/images/apiario.png",
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(
+                    apiarioModelo.apelido,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  subtitle: Text(
+                      apiarioModelo.dateStart ?? 'Data não especificada'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.black),
+                        onPressed: () {
+                          mostrarModalInicio(context,
+                              apiario: apiarioModelo);
+                        },
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          SnackBar snackBar = SnackBar(
+                            backgroundColor:
+                                const Color.fromARGB(255, 235, 95, 85),
+                            content: Text(
+                                "Deseja remover o apiário ${apiarioModelo.apelido}?"),
+                            action: SnackBarAction(
+                              label: "REMOVER",
+                              textColor: Colors.white,
+                              onPressed: () {
+                                servico.removerApiario(
+                                    idApiario: apiarioModelo.id);
+                              },
+                            ),
+                          );
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackBar);
+                        },
+                        icon: const Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            }
-          }
-        },
-      ),
+              ),
+            );
+          },
+        );
+      } else {
+        return const Center(
+          child: Text(
+            "Nenhum apiário registrado 😢",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+        );
+      }
+    }
+  },
+),
+
       bottomNavigationBar: buildBottomNavigationBar(context, 2),
     );
   }
@@ -222,10 +232,17 @@ class DetalhesApiario extends StatelessWidget {
       appBar: AppBar(
         title: Text(apiario.apelido),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          mostrarAdicionarAnotacoes(context, idApiario: apiario.id);
+        },
+        backgroundColor: paletaDeCores.preto,
+        child: const Icon(Icons.add),
+      ),
       body: Column(
         children: [
           Expanded(
-            child: FutureBuilder<List<anotacoesModelo>>(
+            child: FutureBuilder<List<AnotacoesModelo>>(
               future: servico.fetchAnotacoes(apiario.id),
               builder: (context, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {

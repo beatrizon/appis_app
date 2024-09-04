@@ -3,6 +3,7 @@ import 'package:appis_app/assets/components/EstiloCampoFormulario.dart';
 import 'package:appis_app/models/anotacoes_modelo.dart';
 import 'package:appis_app/models/cadastroApiarios.dart';
 import 'package:appis_app/service/apiarioServico.dart';
+import 'package:appis_app/service/anotacoesServico.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
@@ -310,11 +311,14 @@ class _ApiarioModalState extends State<ApiarioModal> {
 
     _apiarioServico.AdicionarApiarios(apiario).then((value) {
       if (anotacoes.isNotEmpty) {
-        anotacoesModelo anotacao = anotacoesModelo(
+        AnotacoesModelo anotacao = AnotacoesModelo(
             id: Uuid().v1(),
             anotacoes: anotacoes,
             data: DateTime.now().toString());
-        _apiarioServico.adicionarAnotacoes(apiario.id, anotacao).then((value) {
+        AnotacoesServico()
+        .adicionarAnotacoes(
+          idApiario: anotacao.id, anotacoesModelo: anotacao)
+        .then((value) {
           setState(() {
             isCarregando = false;
           });
