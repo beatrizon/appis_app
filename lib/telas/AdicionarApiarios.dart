@@ -315,14 +315,16 @@ class _ApiarioModalState extends State<ApiarioModal> {
             id: Uuid().v1(),
             anotacoes: anotacoes,
             data: DateTime.now().toString());
+
         AnotacoesServico()
-        .adicionarAnotacoes(
-          idApiario: anotacao.id, anotacoesModelo: anotacao)
-        .then((value) {
+            .adicionarAnotacoes(
+                idApiario:
+                    apiario.id, // Certifique-se de usar o ID do apiário aqui
+                anotacoesModelo: anotacao)
+            .then((value) {
           setState(() {
             isCarregando = false;
           });
-
           Navigator.pop(context);
         }).catchError((error) {
           setState(() {
