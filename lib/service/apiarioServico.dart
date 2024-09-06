@@ -35,23 +35,18 @@ class ApiarioServico {
     return _firestore.collection(userId).snapshots();
   }
 
-  Future<List<AnotacoesModelo>> fetchAnotacoes(String apiarioId) async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
-          .collection(userId)
-          .doc(apiarioId)
-          .collection("anotacoes")
-          .get();
-      List<AnotacoesModelo> anotacoesList = snapshot.docs.map((doc) {
-        return AnotacoesModelo.fromMap(doc.data());
-      }).toList();
+  Future<List<AnotacoesModelo>> fetchAnotacoes(String idApiario) async {
+  QuerySnapshot snapshot = await _firestore
+      .collection(userId)
+      .doc(idApiario)
+      .collection('anotacoes') // Acessa a subcoleção "anotações"
+      .orderBy('data', descending: true) // Ordena por data, mais recente primeiro
+      .get();
 
-      return anotacoesList;
-    } catch (e) {
-      print('Erro ao buscar anotações: $e');
-      return [];
-    }
-  }
+  return snapshot.docs
+      .map((doc) => AnotacoesModelo.fromMap(doc.data() as Map<String, dynamic>))
+      .toList();
+}
 
   Future<void> removerApiario({required String idApiario}) {
     return _firestore.collection(userId).doc(idApiario).delete();

@@ -215,14 +215,6 @@ class DetalhesApiario extends StatelessWidget {
 
   DetalhesApiario(this.apiario);
 
-  void _enviarFoto() {
-    // Implementar lógica mais tarde
-  }
-
-  void _tirarFoto() {
-    // Implementar lógica mais tarde
-  }
-
   @override
   Widget build(BuildContext context) {
     final ApiarioServico servico = ApiarioServico();
@@ -243,7 +235,7 @@ class DetalhesApiario extends StatelessWidget {
         children: [
           Expanded(
             child: FutureBuilder<List<AnotacoesModelo>>(
-              future: servico.fetchAnotacoes(apiario.id),
+              future: servico.fetchAnotacoes(apiario.id), // Busca as anotações
               builder: (context, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {
                   return const Center(
@@ -276,49 +268,6 @@ class DetalhesApiario extends StatelessWidget {
                               "Apelido: ${apiario.apelido}",
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
-                            const SizedBox(height: 16.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: _tirarFoto,
-                                    icon: const Icon(Icons.camera_alt,
-                                        color: Colors.black),
-                                    label: const Text("Tirar Foto",
-                                        style: TextStyle(color: Colors.black)),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: paletaDeCores.fundoApp,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12.0),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16.0),
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: _enviarFoto,
-                                    icon: const Icon(Icons.photo,
-                                        color: Colors.black),
-                                    label: const Text("Enviar Foto",
-                                        style: TextStyle(color: Colors.black)),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: paletaDeCores.fundoApp,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12.0),
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ),
                             const SizedBox(height: 16.0),
                             Text(

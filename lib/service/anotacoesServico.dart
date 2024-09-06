@@ -27,6 +27,8 @@ class AnotacoesServico {
         .collection("anotacoes")
         .orderBy("data", descending: true)
         .snapshots();
+        
+
   }
 
   Future<void> removerAnotacao({
