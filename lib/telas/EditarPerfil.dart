@@ -1,26 +1,64 @@
-import 'package:appis_app/assets/colors/colors.dart';
-import 'package:appis_app/telas/Visualizar_perfil.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:appis_app/assets/colors/colors.dart';
 
 class EditPerfil extends StatefulWidget {
-  const EditPerfil({Key? key});
+  const EditPerfil({Key? key}) : super(key: key);
 
   @override
   State<EditPerfil> createState() => _EditPerfilState();
 }
 
 class _EditPerfilState extends State<EditPerfil> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool _isEditingPassword = false;
+  String? _oldPassword;
+  String? _newPassword;
+  String? _confirmPassword;
+  final _formKey = GlobalKey<FormState>();
+
+  // Controladores de texto para as senhas
+  final _oldPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  // Função para salvar a nova senha
+  Future<void> _updatePassword() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        User? user = _auth.currentUser;
+
+        // Reautenticação do usuário com a senha antiga
+        final cred = EmailAuthProvider.credential(
+          email: user!.email!,
+          password: _oldPassword!,
+        );
+        await user.reauthenticateWithCredential(cred);
+
+        // Atualizar a senha
+        await user.updatePassword(_newPassword!);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nova senha cadastrada')),
+        );
+        setState(() {
+          _isEditingPassword = false;
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    User? user = _auth.currentUser;
+
     return Scaffold(
       backgroundColor: paletaDeCores.fundoApp,
       body: Padding(
-        padding: const EdgeInsets.only(
-          left: 40,
-          top: 32,
-          right: 40,
-        ),
+        padding: const EdgeInsets.all(40.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -28,7 +66,6 @@ class _EditPerfilState extends State<EditPerfil> {
               children: [
                 IconButton(
                   onPressed: () {
-                    // Navegue de volta à página anterior
                     Navigator.of(context).pop();
                   },
                   icon: const Icon(
@@ -39,200 +76,102 @@ class _EditPerfilState extends State<EditPerfil> {
                 ),
               ],
             ),
+            const SizedBox(height: 30),
+            // Coloque todo o conteúdo do formulário dentro do container branco
             Container(
-              padding: const EdgeInsets.only(top: 30),
-              alignment: Alignment.center,
-              child: const Text(
-                'Informe os novos dados que deseja editar.',
-                style: TextStyle(
-                  color: paletaDeCores.preto,
-                ),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 50),
-              child: Form(
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Nome o Produtor:',
-                        filled: true,
-                        fillColor: paletaDeCores.fundoApp,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.preto,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.fundoApp,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
+              child: Column(
+                children: [
+                  TextFormField(
+                    initialValue: user?.displayName ?? '',
+                    decoration: const InputDecoration(labelText: 'Nome:'),
+                    enabled: false,
+                  ),
+                  const Divider(color: paletaDeCores.cinza, thickness: 2.0),
+                  TextFormField(
+                    initialValue: user?.email ?? '',
+                    decoration: const InputDecoration(labelText: 'Email:'),
+                    enabled: false,
+                  ),
+                  const Divider(color: paletaDeCores.cinza, thickness: 2.0),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          initialValue: '****', // senha mascarada
+                          decoration: const InputDecoration(labelText: 'Senha:'),
+                          enabled: false,
                         ),
                       ),
-                    ),
-                    const Divider(
-                      color: paletaDeCores.cinza,
-                      thickness: 2.0,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: '123.456.789.00:',
-                        filled: true,
-                        fillColor: paletaDeCores.fundoApp,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.preto,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.fundoApp,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const Divider(
-                      color: paletaDeCores.cinza,
-                      thickness: 2.0,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'produtor@gmail.com:',
-                        filled: true,
-                        fillColor: paletaDeCores.fundoApp,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.preto,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.fundoApp,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const Divider(
-                      color: paletaDeCores.cinza,
-                      thickness: 2.0,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Senha:',
-                        filled: true,
-                        fillColor: paletaDeCores.fundoApp,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.preto,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.fundoApp,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const Divider(
-                      color: paletaDeCores.cinza,
-                      thickness: 2.0,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Confirmar Senha:',
-                        filled: true,
-                        fillColor: paletaDeCores.fundoApp,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.preto,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: paletaDeCores.fundoApp,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const Divider(
-                      color: paletaDeCores.cinza,
-                      thickness: 2.0,
-                    ),
-                    const SizedBox(height: 50),
-                    SizedBox(
-                      width: double.maxFinite,
-                      child: ElevatedButton(
+                      IconButton(
+                        icon: const Icon(Icons.edit),
                         onPressed: () {
-                          // Adicione sua lógica de salvar aqui
+                          setState(() {
+                            _isEditingPassword = true;
+                          });
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: paletaDeCores.amareloClaro,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      ),
+                    ],
+                  ),
+                  if (_isEditingPassword)
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _oldPasswordController,
+                            decoration: const InputDecoration(labelText: 'Senha Anterior'),
+                            obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira a senha antiga';
+                              }
+                              _oldPassword = value;
+                              return null;
+                            },
                           ),
-                        ),
-                        child: const Text(
-                          'Salvar',
-                          style: TextStyle(
-                            color: paletaDeCores.preto,
-                            fontSize: 18,
+                          const Divider(color: paletaDeCores.cinza, thickness: 2.0),
+                          TextFormField(
+                            controller: _newPasswordController,
+                            decoration: const InputDecoration(labelText: 'Nova Senha'),
+                            obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira a nova senha';
+                              }
+                              _newPassword = value;
+                              return null;
+                            },
                           ),
-                        ),
+                          const Divider(color: paletaDeCores.cinza, thickness: 2.0),
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            decoration: const InputDecoration(labelText: 'Confirmar Nova Senha'),
+                            obscureText: true,
+                            validator: (value) {
+                              if (value == null || value != _newPasswordController.text) {
+                                return 'As senhas não coincidem';
+                              }
+                              _confirmPassword = value;
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _updatePassword,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: paletaDeCores.amareloClaro,
+                            ),
+                            child: const Text('Confirmar'),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 50),
-                    SizedBox(
-                      width: double.maxFinite,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Navegue para a página ViewPerfil
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => ViewPerfil(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: paletaDeCores.fundoApp,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: const BorderSide(
-                              color: paletaDeCores.preto,
-                            ),
-                          ),
-                        ),
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(
-                            color: paletaDeCores.preto,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
           ],

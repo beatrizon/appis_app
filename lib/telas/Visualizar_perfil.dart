@@ -32,6 +32,8 @@ class _ViewPerfilState extends State<ViewPerfil> {
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Perfil"),
@@ -63,7 +65,7 @@ class _ViewPerfilState extends State<ViewPerfil> {
             ListTile(
               leading: Icon(Icons.exit_to_app),
               title: Text('Deslogar'),
-              onTap: (){}
+              onTap: _logout,
             ),
           ],
         ),
@@ -88,12 +90,12 @@ class _ViewPerfilState extends State<ViewPerfil> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12.0),
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(20),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Nome',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -101,27 +103,13 @@ class _ViewPerfilState extends State<ViewPerfil> {
                       ),
                     ),
                     Text(
-                      'Nome do Produtor',
-                      style: TextStyle(
+                      user?.displayName ?? 'Nome do Produtor',
+                      style: const TextStyle(
                         fontSize: 14,
                       ),
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      'CPF',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      '123.456.789-00',
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                    const Text(
                       'E-mail',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -129,21 +117,21 @@ class _ViewPerfilState extends State<ViewPerfil> {
                       ),
                     ),
                     Text(
-                      'teste@gmail.com',
-                      style: TextStyle(
+                      user?.email ?? 'teste@gmail.com',
+                      style: const TextStyle(
                         fontSize: 14,
                       ),
                     ),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                    const Text(
                       'Senha',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
-                    Text(
-                      '****',
+                    const Text(
+                      '****', // Senha mascarada
                       style: TextStyle(
                         fontSize: 14,
                       ),
