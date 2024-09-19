@@ -7,6 +7,8 @@ import 'package:appis_app/service/anotacoesServico.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 mostrarModalInicio(BuildContext context, {ApiariosModelo? apiario}) {
   showModalBottomSheet(
@@ -15,7 +17,8 @@ mostrarModalInicio(BuildContext context, {ApiariosModelo? apiario}) {
     isDismissible: false,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+    ),
     builder: (context) {
       return ApiarioModal(apiariosModelo: apiario);
     },
@@ -24,6 +27,7 @@ mostrarModalInicio(BuildContext context, {ApiariosModelo? apiario}) {
 
 class ApiarioModal extends StatefulWidget {
   final ApiariosModelo? apiariosModelo;
+
   const ApiarioModal({super.key, this.apiariosModelo});
 
   @override
@@ -40,7 +44,6 @@ class _ApiarioModalState extends State<ApiarioModal> {
   final TextEditingController _anotacoesCtrl = TextEditingController();
 
   bool isCarregando = false;
-
   final ApiarioServico _apiarioServico = ApiarioServico();
 
   @override
@@ -85,25 +88,36 @@ class _ApiarioModalState extends State<ApiarioModal> {
     }
   }
 
-  Future<void> _showUpdateLocationDialog(BuildContext context) async {
+  Future<void> _showOpenMapDialog(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapScreen(
+          onLocationSelected: (LatLng location) {
+            setState(() {
+              _localizacaoCtrl.text = '${location.latitude}, ${location.longitude}';
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showLocationConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Atualizar Localização'),
-          content: const Text(
-              'Deseja atualizar a localização do apiário para a localização atual?'),
+          title: const Text('Deseja inserir a localização atual?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Não', style: TextStyle(color: Colors.red)),
             ),
             TextButton(
-              onPressed: () async {
+              onPressed: () {
+                _obterLocalizacaoAtual();
                 Navigator.of(context).pop();
-                await _obterLocalizacaoAtual();
               },
               child: const Text('Sim', style: TextStyle(color: Colors.green)),
             ),
@@ -115,169 +129,153 @@ class _ApiarioModalState extends State<ApiarioModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      height: MediaQuery.of(context).size.height * 0.9,
-      child: Form(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        (widget.apiariosModelo != null)
-                            ? "Editar ${widget.apiariosModelo!.apelido}"
-                            : "Entre com as informações sobre sua produção",
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(
-                        Icons.close,
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    TextFormField(
-                      controller: _apelidoCtrl,
-                      decoration: getAuthenticationInputDecoration(
-                        "Apelido",
-                        icon: const Icon(Icons.hive),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    TextFormField(
-                      controller: _descricaoCtrl,
-                      decoration: getAuthenticationInputDecoration(
-                        "Descrição",
-                        icon: const Icon(Icons.note),
-                      ),
-                      maxLines: null,
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _localizacaoCtrl,
-                            decoration: getAuthenticationInputDecoration(
-                              "Localização",
-                              icon: const Icon(Icons.location_on),
-                            ),
-                            onTap: () {
-                              if (_localizacaoCtrl.text.isEmpty) {
-                                _showUpdateLocationDialog(context);
-                              }
-                            },
-                          ),
+    return GestureDetector(
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        height: MediaQuery.of(context).size.height * 0.9,
+        child: Form(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          (widget.apiariosModelo != null)
+                              ? "Editar ${widget.apiariosModelo!.apelido}"
+                              : "Entre com as informações sobre sua produção",
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.my_location),
-                          onPressed: () => _showUpdateLocationDialog(context),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _apelidoCtrl,
+                        decoration: getAuthenticationInputDecoration(
+                          "Apelido",
+                          icon: const Icon(Icons.hive),
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    TextFormField(
-                      controller: _dataInicioCtrl,
-                      decoration: getAuthenticationInputDecoration(
-                        "Data Inicio",
-                        icon: const Icon(Icons.calendar_today),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    TextFormField(
-                      controller: _tipoAbelhaCtrl,
-                      decoration: getAuthenticationInputDecoration(
-                        "Tipo Abelha",
-                        icon: const Icon(Icons.bug_report),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _descricaoCtrl,
+                        decoration: getAuthenticationInputDecoration(
+                          "Descrição",
+                          icon: const Icon(Icons.note),
+                        ),
+                        maxLines: null,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    TextFormField(
-                      controller: _qtdColmeiasCtrl,
-                      decoration: getAuthenticationInputDecoration(
-                        "Quantidade de Colmeias",
-                        icon: const Icon(Icons.format_list_numbered),
-                      ),
-                    ),
-                    Visibility(
-                      visible: (widget.apiariosModelo == null),
-                      child: Column(
+                      const SizedBox(height: 16),
+                      Row(
                         children: [
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          TextFormField(
-                            controller: _anotacoesCtrl,
-                            decoration: getAuthenticationInputDecoration(
-                              "Anotações",
-                              icon: const Icon(Icons.edit),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _localizacaoCtrl,
+                              decoration: getAuthenticationInputDecoration(
+                                "Localização",
+                                icon: const Icon(Icons.location_on),
+                              ),
+                              onTap: () {
+                                _showLocationConfirmationDialog(context);
+                              },
                             ),
-                            maxLines: null,
                           ),
-                          const Text(
-                            'Você não precisa preencher as anotações agora',
-                            textAlign: TextAlign.center,
+                          IconButton(
+                            icon: const Icon(Icons.my_location),
+                            onPressed: () => _showOpenMapDialog(context),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () {
-                enviarClicando();
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                    paletaDeCores.amareloClaro),
-                foregroundColor:
-                    MaterialStateProperty.all<Color>(paletaDeCores.preto),
-              ),
-              child: (isCarregando)
-                  ? const SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(
-                        color: Colors.black,
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _dataInicioCtrl,
+                        decoration: getAuthenticationInputDecoration(
+                          "Data Inicio",
+                          icon: const Icon(Icons.calendar_today),
+                        ),
                       ),
-                    )
-                  : Text((widget.apiariosModelo != null)
-                      ? "Editar Apiário "
-                      : "Criar Apiário"),
-            ),
-          ],
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _tipoAbelhaCtrl,
+                        decoration: getAuthenticationInputDecoration(
+                          "Tipo Abelha",
+                          icon: const Icon(Icons.bug_report),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _qtdColmeiasCtrl,
+                        decoration: getAuthenticationInputDecoration(
+                          "Quantidade de Colmeias",
+                          icon: const Icon(Icons.format_list_numbered),
+                        ),
+                      ),
+                      Visibility(
+                        visible: (widget.apiariosModelo == null),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _anotacoesCtrl,
+                              decoration: getAuthenticationInputDecoration(
+                                "Anotações",
+                                icon: const Icon(Icons.edit),
+                              ),
+                              maxLines: null,
+                            ),
+                            const Text(
+                              'Você não precisa preencher as anotações agora',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  enviarClicando();
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      paletaDeCores.amareloClaro),
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(paletaDeCores.preto),
+                ),
+                child: (isCarregando)
+                    ? const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.black,
+                        ),
+                      )
+                    : Text((widget.apiariosModelo != null)
+                        ? "Editar Apiário "
+                        : "Criar Apiário"),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -318,8 +316,7 @@ class _ApiarioModalState extends State<ApiarioModal> {
 
         AnotacoesServico()
             .adicionarAnotacoes(
-                idApiario:
-                    apiario.id, // Certifique-se de usar o ID do apiário aqui
+                idApiario: apiario.id, // Certifique-se de usar o ID do apiário aqui
                 anotacoesModelo: anotacao)
             .then((value) {
           setState(() {
@@ -345,5 +342,99 @@ class _ApiarioModalState extends State<ApiarioModal> {
       });
       print("Erro ao adicionar apiário: $error");
     });
+  }
+}
+
+class MapScreen extends StatefulWidget {
+  final Function(LatLng) onLocationSelected;
+
+  const MapScreen({Key? key, required this.onLocationSelected}) : super(key: key);
+
+  @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  late MapController _mapController;
+  LatLng? _currentLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+    });
+    _mapController.move(
+        _currentLocation!, 15); // Move o mapa para a localização atual
+  }
+
+  void _onMapTap(LatLng location) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Deseja inserir neste local?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Não', style: TextStyle(color: Colors.red)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                widget.onLocationSelected(location);
+                Navigator.of(context).pop(); // Fecha o mapa
+              },
+              child: const Text('Sim', style: TextStyle(color: Colors.green)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Selecione um Local'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: _currentLocation == null
+          ? const Center(child: CircularProgressIndicator())
+          : FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                center: _currentLocation,
+                zoom: 15.0,
+                onTap: (tapPosition, point) => _onMapTap(point),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  subdomains: ['a', 'b', 'c'],
+                ),
+                MarkerLayer(
+                  markers: [
+                    if (_currentLocation != null)
+                      Marker(
+                        point: _currentLocation!,
+                        builder: (ctx) => const Icon(Icons.location_on, color: Colors.red),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+    );
   }
 }
