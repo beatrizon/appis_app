@@ -1,7 +1,7 @@
 
+import 'package:appis_app/assets/colors/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:appis_app/assets/colors.dart';
 import 'package:appis_app/telas/Autenticacao.dart';
 
 import 'package:appis_app/assets/components/NavBar.dart';
@@ -30,16 +30,23 @@ class _SobrePageState extends State<SobrePage> {
     return Scaffold(
       backgroundColor: paletaDeCores.fundoApp,
       appBar: AppBar(
-        title: const Text('Sobre'),
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            );
-          },
-        ),
-      ),
+  title: const Text(
+    'Sobre',
+    style: TextStyle(color: Colors.black), // Define a cor preta para o texto
+  ),
+  backgroundColor: paletaDeCores.amareloClaro, // Define a cor preta para a AppBar
+  leading: Builder(
+    builder: (context) {
+      return IconButton(
+        icon: const Icon(Icons.menu, color: Colors.black), // Define a cor preta para o ícone
+        onPressed: () => Scaffold.of(context).openDrawer(),
+      );
+    },
+  ),
+  foregroundColor: Colors.black, // Define a cor preta para o texto e ícones
+),
+
+
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

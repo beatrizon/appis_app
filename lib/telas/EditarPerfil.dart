@@ -103,7 +103,8 @@ class _EditPerfilState extends State<EditPerfil> {
                       Expanded(
                         child: TextFormField(
                           initialValue: '****', // senha mascarada
-                          decoration: const InputDecoration(labelText: 'Senha:'),
+                          decoration:
+                              const InputDecoration(labelText: 'Senha:'),
                           enabled: false,
                         ),
                       ),
@@ -124,7 +125,8 @@ class _EditPerfilState extends State<EditPerfil> {
                         children: [
                           TextFormField(
                             controller: _oldPasswordController,
-                            decoration: const InputDecoration(labelText: 'Senha Anterior'),
+                            decoration: const InputDecoration(
+                                labelText: 'Senha Anterior'),
                             obscureText: true,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -134,10 +136,12 @@ class _EditPerfilState extends State<EditPerfil> {
                               return null;
                             },
                           ),
-                          const Divider(color: paletaDeCores.cinza, thickness: 2.0),
+                          const Divider(
+                              color: paletaDeCores.cinza, thickness: 2.0),
                           TextFormField(
                             controller: _newPasswordController,
-                            decoration: const InputDecoration(labelText: 'Nova Senha'),
+                            decoration:
+                                const InputDecoration(labelText: 'Nova Senha'),
                             obscureText: true,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -147,13 +151,16 @@ class _EditPerfilState extends State<EditPerfil> {
                               return null;
                             },
                           ),
-                          const Divider(color: paletaDeCores.cinza, thickness: 2.0),
+                          const Divider(
+                              color: paletaDeCores.cinza, thickness: 2.0),
                           TextFormField(
                             controller: _confirmPasswordController,
-                            decoration: const InputDecoration(labelText: 'Confirmar Nova Senha'),
+                            decoration: const InputDecoration(
+                                labelText: 'Confirmar Nova Senha'),
                             obscureText: true,
                             validator: (value) {
-                              if (value == null || value != _newPasswordController.text) {
+                              if (value == null ||
+                                  value != _newPasswordController.text) {
                                 return 'As senhas não coincidem';
                               }
                               _confirmPassword = value;
@@ -166,7 +173,12 @@ class _EditPerfilState extends State<EditPerfil> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: paletaDeCores.amareloClaro,
                             ),
-                            child: const Text('Confirmar'),
+                            child: const Text(
+                              'Confirmar',
+                              style: TextStyle(
+                                  color: Colors
+                                      .black), // Define a cor preta para o texto
+                            ),
                           ),
                         ],
                       ),

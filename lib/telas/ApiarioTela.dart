@@ -9,31 +9,36 @@ class ApiarioTela extends StatelessWidget {
   const ApiarioTela({required this.anotacao, Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: paletaDeCores.fundoApp,
-      appBar: AppBar(
-        title: Text('Detalhes da Anotação'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.exit_to_app), // Ícone de saída
-            onPressed: () {
-              // Lógica para sair da aplicação
-            },
-          ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: paletaDeCores.fundoApp,
+    appBar: AppBar(
+      title: const Text(
+        'Detalhes da Anotação',
+        style: TextStyle(color: Colors.black), // Texto em preto
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.exit_to_app, color: Colors.black), // Ícone em preto
+          onPressed: () {
+            // Lógica para sair da aplicação
+          },
+        ),
+      ],
+      backgroundColor: Colors.amber[800], // Amarelo escuro
+    ),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('ID: ${anotacao.id}'),
+          Text('Anotação: ${anotacao.anotacoes}'),
+          Text('Data: ${anotacao.data}'),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('ID: ${anotacao.id}'),
-            Text('Anotação: ${anotacao.anotacoes}'),
-            Text('Data: ${anotacao.data}'),
-          ],
-        ),
-      ),
-      bottomNavigationBar: buildBottomNavigationBar(context, 2),
-    );
-  }
+    ),
+    bottomNavigationBar: buildBottomNavigationBar(context, 2),
+  );
+}
+
 }
